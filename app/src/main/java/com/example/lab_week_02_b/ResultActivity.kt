@@ -18,19 +18,27 @@ class ResultActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_result)
 
-        val colorCode = intent.getStringExtra(COLOR_KEY)
+        val rawInput = intent.getStringExtra(COLOR_KEY)
         val root = findViewById<ConstraintLayout>(R.id.background_screen)
         val tv = findViewById<TextView>(R.id.color_code_result_message)
-        if (colorCode.isNullOrBlank()) {
-            sendErrorAndFinish()
-            return
-        }
+        if (rawInput.isNullOrBlank()) { sendErrorAndFinish(); return }
+        val normalized = normalizeColorInput(rawInput)
         try {
-            root.setBackgroundColor(Color.parseColor("#" + colorCode))
-            tv.text = getString(R.string.color_code_result_message, colorCode)
+            root.setBackgroundColor(Color.parseColor(normalized))
+            tv.text = getString(R.string.color_code_result_message, normalized.removePrefix("#"))
         } catch (e: IllegalArgumentException) {
             sendErrorAndFinish()
         }
+    }
+
+    private fun normalizeColorInput(input: String): String {
+        val trimmed = input.trim()
+        // If it's a named color (letters only), return as is
+        val lettersOnly = trimmed.matches(Regex("[a-zA-Z_]+"))
+        if (lettersOnly) return trimmed
+        var candidate = trimmed
+        if (!candidate.startsWith("#")) candidate = "#" + candidate
+        return candidate
     }
 
     private fun sendErrorAndFinish() {

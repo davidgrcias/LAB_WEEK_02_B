@@ -30,14 +30,12 @@ class MainActivity : AppCompatActivity() {
         val input = findViewById<TextInputEditText>(R.id.color_code_input_text)
         val submit = findViewById<Button>(R.id.submit_button)
         submit.setOnClickListener {
-            val code = input.text?.toString()?.trim()?.uppercase() ?: ""
-            when {
-                code.isEmpty() -> Toast.makeText(this, getString(R.string.color_code_input_empty), Toast.LENGTH_SHORT).show()
-                code.length != 6 -> Toast.makeText(this, getString(R.string.color_code_input_wrong_length), Toast.LENGTH_SHORT).show()
-                else -> {
-                    val intent = Intent(this, ResultActivity::class.java).apply { putExtra(COLOR_KEY, code) }
-                    startForResult.launch(intent)
-                }
+            val code = input.text?.toString()?.trim().orEmpty()
+            if (code.isEmpty()) {
+                Toast.makeText(this, getString(R.string.color_code_input_empty), Toast.LENGTH_SHORT).show()
+            } else {
+                val intent = Intent(this, ResultActivity::class.java).apply { putExtra(COLOR_KEY, code) }
+                startForResult.launch(intent)
             }
         }
     }
